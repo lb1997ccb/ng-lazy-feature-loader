@@ -14,10 +14,10 @@ describe("AppComponent", () => {
     expect(app).toBeTruthy();
   });
 
-  it(`should have the 'component-resolver-demo' title`, () => {
+  it(`should have the 'ng-lazy-feature-loader' title`, () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
-    expect(app.title).toEqual("component-resolver-demo");
+    expect(app.title).toEqual("ng-lazy-feature-loader");
   });
 
   it("should render title", () => {
@@ -25,7 +25,7 @@ describe("AppComponent", () => {
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector("h1")?.textContent).toContain(
-      "Hello, component-resolver-demo",
+      "Hello, ng-lazy-feature-loader",
     );
   });
 });
