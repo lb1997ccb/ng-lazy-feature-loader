@@ -1,5 +1,21 @@
 <div class="container">
   <h1>Service Page</h1>
   <p>Explore our services. Click below to return home.</p>
-  <button mat-raised-button color="primary" (click)="requestBackToHome()">Back to Home</button>
+  <ul class="service-list">
+    <li>
+      <h3>Web Development</h3>
+      <p>We create responsive and scalable web applications.</p>
+    </li>
+    <li>
+      <h3>Mobile App Development</h3>
+      <p>Custom mobile app solutions tailored to your business needs.</p>
+    </li>
+    <li>
+      <h3>UI/UX Design</h3>
+      <p>We design intuitive and user-friendly interfaces.</p>
+    </li>
+  </ul>
+  <button class="back-button" (click)="requestBackToHome()">
+    Back to Home
+  </button>
 </div>

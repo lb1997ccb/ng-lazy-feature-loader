@@ -1,6 +1,10 @@
 <div class="container">
   <h1>Home Feature</h1>
   <p>Welcome to the Home Feature component. Please select an option below.</p>
-  <button mat-raised-button color="primary" (click)="homeClickRequest('news')">News</button>
-  <button mat-raised-button color="primary" (click)="homeClickRequest('service')">Service</button>
+  <button class="feature-button" (click)="requestFeature('news')">
+    Read Latest News
+  </button>
+  <button class="feature-button" (click)="requestFeature('service')">
+    Explore Our Services
+  </button>
 </div>

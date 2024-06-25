@@ -1,5 +1,21 @@
 <div class="container">
   <h1>News Page</h1>
   <p>Stay updated with the latest news. Click below to return home.</p>
-  <button mat-raised-button color="primary" (click)="requestBackToHome()">Back to Home</button>
+  <ul class="news-list">
+    <li>
+      <h3>Angular 12 Released</h3>
+      <p>The latest version of Angular brings new features and improvements.</p>
+    </li>
+    <li>
+      <h3>React vs Angular: A Comparison</h3>
+      <p>Which frontend framework should you choose for your next project?</p>
+    </li>
+    <li>
+      <h3>JavaScript Trends in 2023</h3>
+      <p>Discover the emerging trends shaping the JavaScript ecosystem.</p>
+    </li>
+  </ul>
+  <button class="back-button" (click)="requestBackToHome()">
+    Back to Home
+  </button>
 </div>

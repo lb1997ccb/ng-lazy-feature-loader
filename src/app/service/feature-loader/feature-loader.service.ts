@@ -1,64 +1,88 @@
-import {ComponentFactoryResolver, ComponentRef, Injectable, Injector, ViewContainerRef,} from '@angular/core';
-import {HomeFeatureResolver} from "../../shared/resolvers/home-feature.resolver";
-import {HomeFeatureComponent} from "../../features/home/home-feature.component";
-import {NewsPageComponent} from "../../features/pages/news/news-page.component";
-import {NewsFeatureResolver} from "../../shared/resolvers/news-feature.resolver";
-import {ServiceFeatureResolver} from "../../shared/resolvers/service-feature.resolver";
-import {ServicePageComponent} from "../../features/pages/service/service-page.component";
+import {
+  ComponentFactoryResolver,
+  Injectable,
+  Injector,
+  Type,
+  ViewContainerRef,
+} from "@angular/core";
+import { HomeFeatureResolver } from "../../shared/resolvers/home-feature.resolver";
+import { HomeFeatureComponent } from "../../features/home/home-feature.component";
+import { NewsFeatureResolver } from "../../shared/resolvers/news-feature.resolver";
+import { NewsPageComponent } from "../../features/pages/news/news-page.component";
+import { ServiceFeatureResolver } from "../../shared/resolvers/service-feature.resolver";
+import { ServicePageComponent } from "../../features/pages/service/service-page.component";
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root",
 })
 export class FeatureLoaderService {
   constructor(
-    private cfr: ComponentFactoryResolver,
-    private injector: Injector,
-    private homeFeatureResolver: HomeFeatureResolver,
-    private newsFeatureResolver: NewsFeatureResolver,
-    private serviceFeatureResolver: ServiceFeatureResolver
-  ) {
-    // no empty
-  }
+    private cfr: ComponentFactoryResolver, // Angular's ComponentFactoryResolver to dynamically create components
+    private injector: Injector, // Angular's Injector for dependency injection
+    private homeFeatureResolver: HomeFeatureResolver, // Resolver for Home Feature component
+    private newsFeatureResolver: NewsFeatureResolver, // Resolver for News Feature component
+    private serviceFeatureResolver: ServiceFeatureResolver, // Resolver for Service Feature component
+  ) {}
 
+  /**
+   * Loads the Home Feature component into the specified container.
+   * @param container ViewContainerRef where the component should be loaded
+   * @returns Promise resolving to the loaded HomeFeatureComponent instance
+   */
   async loadHomeFeatureComponent(
-    container?: ViewContainerRef
-  ): Promise<ComponentRef<HomeFeatureComponent>> {
-    if (!container) {
-      throw new Error('Container is undefined');
-    }
-    const featureComponent = await this.homeFeatureResolver.resolve();
-    const componentFactory = this.cfr.resolveComponentFactory(featureComponent);
-
-    container.clear();
-    const componentRef = container.createComponent(componentFactory, undefined, this.injector);
-    return componentRef;
+    container: ViewContainerRef,
+  ): Promise<HomeFeatureComponent> {
+    return this.loadFeatureComponent(
+      () => this.homeFeatureResolver.resolve(), // Resolve the Home Feature component asynchronously
+      container,
+    );
   }
 
+  /**
+   * Loads the News Feature component into the specified container.
+   * @param container ViewContainerRef where the component should be loaded
+   * @returns Promise resolving to the loaded NewsPageComponent instance
+   */
   async loadNewsFeatureComponent(
-    container?: ViewContainerRef
-  ): Promise<ComponentRef<NewsPageComponent>> {
-    if (!container) {
-      throw new Error('Container is undefined');
-    }
-    const featureComponent = await this.newsFeatureResolver.resolve();
-    const componentFactory = this.cfr.resolveComponentFactory(featureComponent);
-
-    container.clear();
-    const componentRef = container.createComponent(componentFactory, undefined, this.injector);
-    return componentRef;
+    container: ViewContainerRef,
+  ): Promise<NewsPageComponent> {
+    return this.loadFeatureComponent(
+      () => this.newsFeatureResolver.resolve(), // Resolve the News Feature component asynchronously
+      container,
+    );
   }
 
+  /**
+   * Loads the Service Feature component into the specified container.
+   * @param container ViewContainerRef where the component should be loaded
+   * @returns Promise resolving to the loaded ServicePageComponent instance
+   */
   async loadServiceFeatureComponent(
-    container?: ViewContainerRef
-  ): Promise<ComponentRef<ServicePageComponent>> {
-    if (!container) {
-      throw new Error('Container is undefined');
-    }
-    const featureComponent = await this.serviceFeatureResolver.resolve();
-    const componentFactory = this.cfr.resolveComponentFactory(featureComponent);
+    container: ViewContainerRef,
+  ): Promise<ServicePageComponent> {
+    return this.loadFeatureComponent(
+      () => this.serviceFeatureResolver.resolve(), // Resolve the Service Feature component asynchronously
+      container,
+    );
+  }
 
-    container.clear();
-    const componentRef = container.createComponent(componentFactory, undefined, this.injector);
-    return componentRef;
+  /**
+   * Helper method to load a feature component into the specified container.
+   * @param resolver Function that resolves to the type of the component to load
+   * @param container ViewContainerRef where the component should be loaded
+   * @returns Promise resolving to the loaded component instance
+   */
+  private async loadFeatureComponent<T>(
+    resolver: () => Promise<Type<T>>,
+    container: ViewContainerRef,
+  ): Promise<T> {
+    const featureComponent = await resolver(); // Resolve the component type asynchronously
+    const componentFactory = this.cfr.resolveComponentFactory(featureComponent); // Resolve the ComponentFactory for the component type
+    const componentRef = componentFactory.create(this.injector); // Create an instance of the component using Angular's Injector
+
+    container.clear(); // Clear any existing content in the container
+    container.insert(componentRef.hostView); // Insert the component into the container
+
+    return componentRef.instance; // Return the instance of the loaded component
   }
 }
