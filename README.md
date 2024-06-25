@@ -1,94 +1,108 @@
-# ComponentResolverDemo
+# ng-lazy-feature-loader
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.3.6.
-This Angular project consists of several components and a service that collaborate to load dynamic content components and navigate between them.
-The key components are `AppComponent`, `HomeFeatureComponent`, `NewsPageComponent`, `ServicePageComponent`, `FeatureLoaderService` and the component resolvers e.g. `HomeFeatureResolver`.
+This project demonstrates Angular's capability to dynamically load components and modules on-demand, enhancing application performance by loading resources only when needed.
 
-### Development server
+## Overview
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+Angular applications can benefit from lazy loading techniques to improve initial loading times and resource efficiency. This project showcases how to implement dynamic component loading without relying on Angular's built-in routing mechanism.
 
-## Key Methods and Their Functionality
+## Features
 
-### AppComponent
+- **Dynamic Component Loading:** Load components dynamically based on user interactions or application state.
+- **Efficient Resource Management:** Components and modules are loaded lazily, improving initial load times.
+- **Flexible Integration:** Easily integrate dynamic loading into existing Angular projects without routing dependencies.
 
-The method `loadHomeFeature()` loads the `HomeFeatureComponent` and adds an event listener to respond to click events.
-This invokes the `featureLoaderService.loadHomeFeatureComponent` to dynamically load the `HomeFeatureComponent`.
-Once the component is loaded, an event listener is set on `featureRequested` to respond to click events.
+## Usage
 
-```ts
-private loadHomeFeature(): void {
-  this.featureLoaderService.loadHomeFeatureComponent(this.container)
-    .then((homeComponentRef) => {
-      homeComponentRef.instance.featureRequested!.subscribe((eventKey: string) => {
-        this.handleHomeClickRequested(eventKey);
+### Installation
+
+To get started with this project, follow these steps:
+
+1. Clone this repository.
+2. Install dependencies using `npm install`.
+3. Run the application using `ng serve`.
+
+## FeatureLoaderService
+
+The `FeatureLoaderService` in this project facilitates dynamic loading of Angular components based on asynchronous resolution through resolvers. It enhances modularity and performance by selectively loading components only when needed.
+
+### Overview
+
+The `FeatureLoaderService` leverages Angular's `ComponentFactoryResolver` and `Injector` to dynamically instantiate and load components into designated `ViewContainerRef` instances. This approach avoids static imports and allows components to be loaded lazily, optimizing initial loading times.
+
+### Usage
+
+#### Dependencies
+
+Ensure the following resolvers and components are correctly implemented and available for resolution:
+
+- `HomeFeatureResolver`: Resolves to `HomeFeatureComponent`
+- `NewsFeatureResolver`: Resolves to `NewsPageComponent`
+- `ServiceFeatureResolver`: Resolves to `ServicePageComponent`
+
+#### Methods
+
+- **`loadHomeFeatureComponent(container: ViewContainerRef): Promise<HomeFeatureComponent>`**
+    - Loads the `HomeFeatureComponent` into the specified `ViewContainerRef`.
+
+- **`loadNewsFeatureComponent(container: ViewContainerRef): Promise<NewsPageComponent>`**
+    - Loads the `NewsPageComponent` into the specified `ViewContainerRef`.
+
+- **`loadServiceFeatureComponent(container: ViewContainerRef): Promise<ServicePageComponent>`**
+    - Loads the `ServicePageComponent` into the specified `ViewContainerRef`.
+
+#### Example
+
+```typescript
+import { Component, AfterViewInit, ViewChild, ViewContainerRef } from '@angular/core';
+import { FeatureLoaderService } from './feature-loader.service';
+import { HomeFeatureComponent } from './features/home/home-feature.component';
+import { NewsPageComponent } from './features/pages/news/news-page.component';
+import { ServicePageComponent } from './features/pages/service/service-page.component';
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+})
+export class AppComponent implements AfterViewInit {
+  @ViewChild('container', { read: ViewContainerRef, static: true })
+  container!: ViewContainerRef;
+
+  constructor(private featureLoaderService: FeatureLoaderService) {}
+
+  ngAfterViewInit() {
+    // Example: Load HomeFeatureComponent dynamically
+    this.featureLoaderService.loadHomeFeatureComponent(this.container)
+      .then((homeComponent: HomeFeatureComponent) => {
+        // HomeFeatureComponent loaded successfully
+      })
+      .catch((error) => {
+        console.error('Error loading HomeFeatureComponent:', error);
       });
-    });
+  }
 }
 ```
 
-The method `handleHomeClickRequested(eventKey: string)` handles the click events from the `HomeFeatureComponent` and accordingly loads either the `NewsPageComponent` or the `ServicePageComponent`.
-Initially, it checks if the container is defined. Based on the `eventKey`, either the `NewsPageComponent` or the `ServicePageComponent` is loaded.
-After the respective component is loaded, an event listener is added to respond to `backToHomeRequested` and return to the `HomeFeatureComponent`.
-
-```ts
-private handleHomeClickRequested(eventKey: string): void {
-  if (!this.container) {
-    throw new Error('Container is undefined');
-  }
-  if (eventKey === 'news') {
-    this.featureLoaderService.loadNewsFeatureComponent(this.container)
-      .then((newsComponentRef) => {
-        newsComponentRef.instance.backToHomeRequested!.subscribe(() => {
-          this.loadHomeFeature();
-        });
-      });
-  } else if (eventKey === 'service') {
-    this.featureLoaderService.loadServiceFeatureComponent(this.container)
-      .then((serviceComponentRef) => {
-        serviceComponentRef.instance.backToHomeRequested!.subscribe(() => {
-          this.loadHomeFeature();
-        });
-      });
-  }
-}
-```
-
-### FeatureLoaderService
-
-The method `loadHomeFeatureComponent(container?: ViewContainerRef): Promise<ComponentRef<HomeFeatureComponent>>` dynamically loads the `HomeFeatureComponent` into the specified `ViewContainerRef`.
-It checks if the container is defined. Then, `homeFeatureResolver.resolve` is invoked to dynamically load the `HomeFeatureComponent`. A `ComponentFactory` is created and used to instantiate the component within the container.
-The container is cleared before the new component is created. A `ComponentRef of the created component is returned.
-
-```ts
-async loadHomeFeatureComponent(
-  container?: ViewContainerRef
-): Promise<ComponentRef<HomeFeatureComponent>> {
-  if (!container) {
-    throw new Error('Container is undefined');
-  }
-  const featureComponent = await this.homeFeatureResolver.resolve();
-  const componentFactory = this.cfr.resolveComponentFactory(featureComponent);
-
-  container.clear();
-  const componentRef = container.createComponent(componentFactory, undefined, this.injector);
-  return componentRef;
-}
-```
+## Resolvers
 
 ### HomeFeatureResolver
+The `HomeFeatureResolver` asynchronously resolves to the `HomeFeatureComponent`, allowing dynamic loading based on demand.
 
-The method `resolve()` in the `HomeFeatureResolver` dynamically resolves the `HomeFeatureComponent`. This method asynchronously loads the `HomeFeatureComponent` using dynamic imports.
-It utilizes `await import('../../features/home/home-feature.component')` to import the module containing the `HomeFeatureComponent`. Finally, `m.HomeFeatureComponent` is returned to reference the `HomeFeatureComponent`.
+### NewsFeatureResolver
+The `NewsFeatureResolver` asynchronously resolves to the `NewsPageComponent`, facilitating lazy loading for news-related features.
 
-```ts
-async resolve(): Promise<typeof HomeFeatureComponent> {
-  const m = await import('../../features/home/home-feature.component');
-  return m.HomeFeatureComponent;
-}
-```
+### ServiceFeatureResolver
+The `ServiceFeatureResolver` asynchronously resolves to the `ServicePageComponent`, enabling selective loading of service-related components.
 
-## Summary
+## AppComponent
 
-These methods work together to load dynamic content components in an Angular application and navigate between them.
-By utilizing event emitters and asynchronous resolvers, the application can be designed to be flexible and modular.
+The `AppComponent` serves as the entry point of the application. It demonstrates how to use the `FeatureLoaderService` to dynamically load feature components into the view.
+
+## Contributing
+
+Contributions to enhance the `FeatureLoaderService` or its associated resolvers are welcome. Please follow the existing patterns and guidelines.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
