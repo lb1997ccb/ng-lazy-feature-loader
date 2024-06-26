@@ -43,56 +43,68 @@ Ensure the following resolvers and components are correctly implemented and avai
 #### Methods
 
 - **`loadHomeFeatureComponent(container: ViewContainerRef): Promise<HomeFeatureComponent>`**
-    - Loads the `HomeFeatureComponent` into the specified `ViewContainerRef`.
+
+  - Loads the `HomeFeatureComponent` into the specified `ViewContainerRef`.
 
 - **`loadNewsFeatureComponent(container: ViewContainerRef): Promise<NewsPageComponent>`**
-    - Loads the `NewsPageComponent` into the specified `ViewContainerRef`.
+
+  - Loads the `NewsPageComponent` into the specified `ViewContainerRef`.
 
 - **`loadServiceFeatureComponent(container: ViewContainerRef): Promise<ServicePageComponent>`**
-    - Loads the `ServicePageComponent` into the specified `ViewContainerRef`.
+  - Loads the `ServicePageComponent` into the specified `ViewContainerRef`.
 
 #### Example
 
 ```typescript
-import { Component, AfterViewInit, ViewChild, ViewContainerRef } from '@angular/core';
-import { FeatureLoaderService } from './feature-loader.service';
-import { HomeFeatureComponent } from './features/home/home-feature.component';
-import { NewsPageComponent } from './features/pages/news/news-page.component';
-import { ServicePageComponent } from './features/pages/service/service-page.component';
+import {
+  Component,
+  AfterViewInit,
+  ViewChild,
+  ViewContainerRef,
+} from "@angular/core";
+import { FeatureLoaderService } from "./service/feature-loader/feature-loader.service";
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  selector: "app-root",
+  standalone: true,
+  templateUrl: "./app.component.html",
+  styleUrls: ["./app.component.css"],
 })
 export class AppComponent implements AfterViewInit {
-  @ViewChild('container', { read: ViewContainerRef, static: true })
+  @ViewChild("container", { read: ViewContainerRef, static: true })
   container!: ViewContainerRef;
 
   constructor(private featureLoaderService: FeatureLoaderService) {}
 
   ngAfterViewInit() {
     // Example: Load HomeFeatureComponent dynamically
-    this.featureLoaderService.loadHomeFeatureComponent(this.container)
-      .then((homeComponent: HomeFeatureComponent) => {
-        // HomeFeatureComponent loaded successfully
+    this.featureLoaderService
+      .loadHomeFeatureComponent(this.container)
+      .then((homeComponent) => {
+        homeComponent.featureRequested!.subscribe((eventKey: string) => {
+          this.handleFeatureRequested(eventKey);
+        });
       })
       .catch((error) => {
-        console.error('Error loading HomeFeatureComponent:', error);
+        console.error("Error loading home feature component:", error);
       });
   }
 }
 ```
+- **handleFeatureRequested:** This method is located within the `AppComponent` and handles the logic for dynamically loading different feature components based on the `eventKey`.
 
 ## Resolvers
 
 ### HomeFeatureResolver
+
 The `HomeFeatureResolver` asynchronously resolves to the `HomeFeatureComponent`, allowing dynamic loading based on demand.
 
 ### NewsFeatureResolver
+
 The `NewsFeatureResolver` asynchronously resolves to the `NewsPageComponent`, facilitating lazy loading for news-related features.
 
 ### ServiceFeatureResolver
+
 The `ServiceFeatureResolver` asynchronously resolves to the `ServicePageComponent`, enabling selective loading of service-related components.
 
 ## AppComponent

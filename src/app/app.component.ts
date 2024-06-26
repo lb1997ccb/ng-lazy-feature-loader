@@ -47,15 +47,16 @@ export class AppComponent implements AfterViewInit {
       throw new Error("Container is undefined");
     }
 
-    this.featureLoaderService.loadHomeFeatureComponent(this.container)
-        .then((homeComponent) => {
-          homeComponent.featureRequested!.subscribe((eventKey: string) => {
-            this.handleFeatureRequested(eventKey);
-          });
-        })
-        .catch((error) => {
-          console.error('Error loading home feature component:', error);
+    this.featureLoaderService
+      .loadHomeFeatureComponent(this.container)
+      .then((homeComponent) => {
+        homeComponent.featureRequested!.subscribe((eventKey: string) => {
+          this.handleFeatureRequested(eventKey);
         });
+      })
+      .catch((error) => {
+        console.error("Error loading home feature component:", error);
+      });
   }
 
   /**
