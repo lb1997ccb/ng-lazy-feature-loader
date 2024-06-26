@@ -28,7 +28,7 @@ The `FeatureLoaderService` in this project facilitates dynamic loading of Angula
 
 ### Overview
 
-The `FeatureLoaderService` leverages Angular's `ComponentFactoryResolver` and `Injector` to dynamically instantiate and load components into designated `ViewContainerRef` instances. This approach avoids static imports and allows components to be loaded lazily, optimizing initial loading times.
+The `FeatureLoaderService` utilizes Angular's Ivy APIs, specifically the `ViewContainerRef.createComponent` method, to dynamically instantiate and load components into designated `ViewContainerRef` instances. This approach avoids static imports and enables lazy loading of components, optimizing initial loading times and reducing the application's initial bundle size.
 
 ### Usage
 

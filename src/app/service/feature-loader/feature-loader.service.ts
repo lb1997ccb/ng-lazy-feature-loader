@@ -1,5 +1,4 @@
 import {
-  ComponentFactoryResolver,
   Injectable,
   Injector,
   Type,
@@ -17,11 +16,10 @@ import { ServicePageComponent } from "../../features/pages/service/service-page.
 })
 export class FeatureLoaderService {
   constructor(
-    private cfr: ComponentFactoryResolver, // Angular's ComponentFactoryResolver to dynamically create components
-    private injector: Injector, // Angular's Injector for dependency injection
-    private homeFeatureResolver: HomeFeatureResolver, // Resolver for Home Feature component
-    private newsFeatureResolver: NewsFeatureResolver, // Resolver for News Feature component
-    private serviceFeatureResolver: ServiceFeatureResolver, // Resolver for Service Feature component
+      private injector: Injector, // Angular's Injector for dependency injection
+      private homeFeatureResolver: HomeFeatureResolver, // Resolver for Home Feature component
+      private newsFeatureResolver: NewsFeatureResolver, // Resolver for News Feature component
+      private serviceFeatureResolver: ServiceFeatureResolver, // Resolver for Service Feature component
   ) {}
 
   /**
@@ -30,11 +28,11 @@ export class FeatureLoaderService {
    * @returns Promise resolving to the loaded HomeFeatureComponent instance
    */
   async loadHomeFeatureComponent(
-    container: ViewContainerRef,
+      container: ViewContainerRef,
   ): Promise<HomeFeatureComponent> {
     return this.loadFeatureComponent(
-      () => this.homeFeatureResolver.resolve(), // Resolve the Home Feature component asynchronously
-      container,
+        () => this.homeFeatureResolver.resolve(), // Resolve the Home Feature component asynchronously
+        container,
     );
   }
 
@@ -44,11 +42,11 @@ export class FeatureLoaderService {
    * @returns Promise resolving to the loaded NewsPageComponent instance
    */
   async loadNewsFeatureComponent(
-    container: ViewContainerRef,
+      container: ViewContainerRef,
   ): Promise<NewsPageComponent> {
     return this.loadFeatureComponent(
-      () => this.newsFeatureResolver.resolve(), // Resolve the News Feature component asynchronously
-      container,
+        () => this.newsFeatureResolver.resolve(), // Resolve the News Feature component asynchronously
+        container,
     );
   }
 
@@ -58,11 +56,11 @@ export class FeatureLoaderService {
    * @returns Promise resolving to the loaded ServicePageComponent instance
    */
   async loadServiceFeatureComponent(
-    container: ViewContainerRef,
+      container: ViewContainerRef,
   ): Promise<ServicePageComponent> {
     return this.loadFeatureComponent(
-      () => this.serviceFeatureResolver.resolve(), // Resolve the Service Feature component asynchronously
-      container,
+        () => this.serviceFeatureResolver.resolve(), // Resolve the Service Feature component asynchronously
+        container,
     );
   }
 
@@ -73,15 +71,16 @@ export class FeatureLoaderService {
    * @returns Promise resolving to the loaded component instance
    */
   private async loadFeatureComponent<T>(
-    resolver: () => Promise<Type<T>>,
-    container: ViewContainerRef,
+      resolver: () => Promise<Type<T>>,
+      container: ViewContainerRef,
   ): Promise<T> {
     const featureComponent = await resolver(); // Resolve the component type asynchronously
-    const componentFactory = this.cfr.resolveComponentFactory(featureComponent); // Resolve the ComponentFactory for the component type
-    const componentRef = componentFactory.create(this.injector); // Create an instance of the component using Angular's Injector
 
     container.clear(); // Clear any existing content in the container
-    container.insert(componentRef.hostView); // Insert the component into the container
+
+    const componentRef = container.createComponent(featureComponent, {
+      injector: this.injector, // Use Angular's Injector for dependency injection
+    }); // Create and insert the component into the container directly
 
     return componentRef.instance; // Return the instance of the loaded component
   }
