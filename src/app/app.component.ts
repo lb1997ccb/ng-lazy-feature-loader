@@ -5,7 +5,6 @@ import {
   ViewContainerRef,
   EventEmitter,
 } from "@angular/core";
-import { HomeFeatureComponent } from "./features/home/home-feature.component";
 import { FeatureLoaderService } from "./service/feature-loader/feature-loader.service";
 
 /**
@@ -48,16 +47,15 @@ export class AppComponent implements AfterViewInit {
       throw new Error("Container is undefined");
     }
 
-    this.featureLoaderService
-      .loadHomeFeatureComponent(this.container)
-      .then((homeComponent: HomeFeatureComponent) => {
-        homeComponent.featureRequested!.subscribe((eventKey: string) => {
-          this.handleFeatureRequested(eventKey);
+    this.featureLoaderService.loadHomeFeatureComponent(this.container)
+        .then((homeComponent) => {
+          homeComponent.featureRequested!.subscribe((eventKey: string) => {
+            this.handleFeatureRequested(eventKey);
+          });
+        })
+        .catch((error) => {
+          console.error('Error loading home feature component:', error);
         });
-      })
-      .catch((error) => {
-        console.error("Error loading home feature component:", error);
-      });
   }
 
   /**
